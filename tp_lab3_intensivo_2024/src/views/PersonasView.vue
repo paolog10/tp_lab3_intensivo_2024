@@ -7,26 +7,12 @@
       <main>
         <section>
 
-          <h2>Personas</h2>
-            <form @submit.prevent="editMode ? confirmEdit() : addPersona()">
-            <input 
-              v-model="persona.param1" 
-              placeholder="Nombre"
-              required
-            />
-            
-            <input 
-              v-model="persona.param2" 
-              placeholder="Fecha de Nacimiento" 
-              required 
-            />
-            
-            <button 
-              type="submit"
-            >
-              {{ editMode ? "Guardar Cambios" : "Agregar Persona" }}
-            </button>
-          </form><br>
+          <FormularioPersona 
+            :persona="persona" 
+            :editMode="editMode"
+            @fetch-personas="fetchPersonas"
+            @edit-mode="updateEditMode"
+          />
 
           <p v-if="personas.length === 0">No hay personas.</p>
 
@@ -43,7 +29,6 @@
                 <td>{{ persona.param1 }}</td>
                 <td>{{ persona.param2 }}</td>
                 <td>
-                  <button @click="verPersona(persona)">Ver</button>
                   <button @click="editPersona(persona)">Editar</button>
                   <button @click="confirmDelete(persona.idcod)">Eliminar</button>
                 </td>
@@ -61,8 +46,14 @@
   </template>
 
   <script>
-  import axios from 'axios'
+    import axios from 'axios';
+    import FormularioPersona from '@/components/FormularioPersona.vue';
+
     export default {
+      components:{
+        FormularioPersona,
+      },
+
       data(){
         return {
           personas: [],
@@ -86,27 +77,9 @@
           }
         },
 
-        //POST
-        async addPersona() {
-          try {
-            const nuevaPersona ={
-              param1: this.persona.param1,
-              param2: this.persona.param2,
-            }
-
-            const response = await axios.post('https://api.yumserver.com/15862/generic/personas', nuevaPersona);
-
-            this.resetForm();
-            
-            await this.fetchPersonas();
-          } catch (error) {
-            console.log(error);
-          }
-        },
-
         //DELETE
         confirmDelete(id){
-          if (confirm('¿Estás seguro de eliminar esta empresa?')) {
+          if (confirm('¿Estás seguro de eliminar esta persona?')) {
             this.deletePersona(id);
           }
         },
@@ -126,32 +99,17 @@
           }
         },
 
-        //PATCH AXIOS
+        //Preparo la persona
         editPersona(persona) {
           this.editMode = true;
           this.persona = {...persona}
         },
-        async confirmEdit() {
-          if (confirm('¿Estás seguro de editar esta persona?')) {
-            try {
-              console.log(this.persona)
-              let response = await axios.patch('https://api.yumserver.com/15862/generic/personas', this.persona);
-              console.log(response)
-              this.resetForm();
-              await this.fetchPersonas();
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        },
 
-        resetForm() {
-          this.persona = { idcod: null, nombre: '', fechaNacimiento: '' };
-          this.editMode = false;
+        updateEditMode(value) {
+          this.editMode = value;
+          this.persona = { idcod: null, param1: '', param2: '' };
         },
       },
-
-
 
       async mounted() {
         await this.fetchPersonas();
