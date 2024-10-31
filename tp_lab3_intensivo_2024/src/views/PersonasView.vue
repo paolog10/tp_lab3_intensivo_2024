@@ -35,6 +35,7 @@
               <tr>
                 <th>Nombre</th>
                 <th>Fecha de Nacimiento</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -42,6 +43,7 @@
                 <td>{{ persona.param1 }}</td>
                 <td>{{ persona.param2 }}</td>
                 <td>
+                  <button @click="verPersona(persona)">Ver</button>
                   <button @click="editPersona(persona)">Editar</button>
                   <button @click="confirmDelete(persona.idcod)">Eliminar</button>
                 </td>
@@ -166,7 +168,7 @@
 
   header,
   footer {
-    background-color:coral;
+    background-color: #007bff;
     color: white;
     text-align: center;
     padding: 10px 0;

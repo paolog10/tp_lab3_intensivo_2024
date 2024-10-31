@@ -44,7 +44,10 @@
               <td>{{ emp.param1 }}</td>
               <td>{{ emp.param2 }}</td>
               <td>
-                <button @click="editEmpresa(emp)">Editar</button> 
+                <router-link :to="{ name: 'EmpresaDetalle', params: { id: emp.idcod }}">
+                  <button>Ver</button>
+                </router-link>
+                <button @click="editEmpresa(emp)">Editar</button>
                 <button @click="confirmDeleteEmpresa(emp.idcod)">Eliminar</button>
               </td>
             </tr>
@@ -168,7 +171,7 @@ body {
 
 header,
 footer {
-  background-color: #333;
+  background-color: #007bff;
   color: white;
   text-align: center;
   padding: 10px 0;
