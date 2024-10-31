@@ -9,15 +9,15 @@
       <section>
 
         <h2>Empresas</h2>
-          <form @submit.prevent="handleSubmit">
+          <form @submit.prevent="editMode ? confirmEditEmpresa() : addEmpresa()">
           <input 
-            v-model="empresa.nombre" 
+            v-model="empresa.param1" 
             placeholder="Nombre de la empresa"
             required
           />
           
           <input 
-            v-model="empresa.categoria" 
+            v-model="empresa.param2" 
             placeholder="Categoría de la empresa" 
             required 
           />
@@ -29,7 +29,7 @@
           </button>
         </form><br>
 
-        <p v-if="empresas.length === 0">No hay empresas disponibles.</p>
+        <p v-if="empresas.length === 0">No hay empresas cargadas.</p>
 
         <table v-else>
           <thead>
@@ -44,9 +44,8 @@
               <td>{{ emp.param1 }}</td>
               <td>{{ emp.param2 }}</td>
               <td>
-                <button @click="startEditing(emp)">Editar</button> 
+                <button @click="editEmpresa(emp)">Editar</button> 
                 <button @click="confirmDeleteEmpresa(emp.idcod)">Eliminar</button>
-                <button>Ver Detalles</button>
               </td>
             </tr>
           </tbody>
@@ -67,7 +66,11 @@ export default {
   data() {
     return {
       empresas: [],
-      empresa: { idcod: null, nombre: '', categoria: '' },
+      empresa: {
+        idcod: null,
+        param1: "",
+        param2: ""
+      },
       editMode: false,
     };
   },
@@ -87,8 +90,8 @@ export default {
     async addEmpresa() {
       try {
         const nuevaEmpresa ={
-          param1: this.empresa.nombre,
-          param2: this.empresa.categoria,
+          param1: this.empresa.param1,
+          param2: this.empresa.param2,
         }
 
         const response = await axios.post('https://api.yumserver.com/15862/generic/empresa', nuevaEmpresa);
@@ -99,75 +102,24 @@ export default {
       }
     },
 
-    // Llenar el formulario con datos de la empresa seleccionada y activar modo edición
-    startEditing(emp) {
-      this.empresa = { 
-        idcod: emp.idcod, 
-        nombre: emp.param1, 
-        categoria: emp.param2 
-      };
-      console.log("emp: ", emp)
+    //PATCH AXIOS
+    editEmpresa(empresa) {
       this.editMode = true;
+      this.empresa = { ...empresa }; 
     },
+    async confirmEditEmpresa() {
+      if (confirm('¿Estás seguro de editar esta empresa?')) {
+        try {
+          let response = await axios.patch('https://api.yumserver.com/15862/generic/empresa', this.empresa);
 
-    // Confirmar y guardar cambios
-    async handleSubmit() {
-      if (this.editMode) {
-        if (confirm('¿Estás seguro de editar esta empresa?')) {
-          console.log("this.empresa. handlesubmit: ", this.empresa)
-          await this.editEmpresa(this.empresa);
+          // Llama a fetchEmpresas() para actualizar la lista completa desde el servidor
+          await this.fetchEmpresas();
+
+          // Resetea el formulario
+          this.resetForm();
+        } catch (error) {
+          console.log(error);
         }
-      } else {
-        await this.addEmpresa();
-      }
-      
-      this.resetForm();
-    },
-
-    // //PATCH AXIOS
-    // async editEmpresa(empresa) {
-    //   try {
-    //     const empresaEditada = {
-    //       idcod: empresa.idcod,
-    //       param1: empresa.param1,  //nombre 
-    //       param2: empresa.param2   //categoria 
-    //     };
-    //     console.log("empresaEditada", empresaEditada)
-
-    //     const response = await axios.patch('https://api.yumserver.com/15862/generic/empresa', empresaEditada);
-        
-    //     await this.fetchEmpresas();
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // },
-
-    //PATCH FETCH
-    async editEmpresa(empresa) {
-      try {
-        const empresaEditada = {
-          idcod: empresa.idcod,
-          param1: empresa.nombre, 
-          param2: empresa.categoria  
-        };
-        console.log("empresaEditada", empresaEditada);
-
-        const response = await fetch('/api/empresa', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(empresaEditada),
-        });
-
-        // if (!response.ok) {
-        //   throw new Error(`Error: ${response.status}`); 
-        // }
-        console.log(response);
-
-        await this.fetchEmpresas(); 
-      } catch (error) {
-        console.log(error);
       }
     },
 
