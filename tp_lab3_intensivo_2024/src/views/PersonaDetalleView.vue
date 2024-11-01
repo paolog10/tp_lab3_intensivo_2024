@@ -1,13 +1,13 @@
 <template>
-  <div class="empresa-detalle">
+  <div class="persona-detalle">
     <h2>Detalles de la Empresa</h2>
     
     <div 
-      v-if="empresa && empresa.idcod !== null"
-      class="empresa-info"
+      v-if="persona && persona.idcod !== null"
+      class="persona-info"
     >
-      <p><strong>Nombre:</strong> {{ empresa.param1 }}</p>
-      <p><strong>Categoría:</strong> {{ empresa.param2 }}</p>
+      <p><strong>Nombre:</strong> {{ persona.param1 }}</p>
+      <p><strong>Fecha de Nacimiento:</strong> {{ persona.param2 }}</p>
       <button 
         @click="volver"
         class="btn-volver"  
@@ -30,7 +30,7 @@
 import axios from 'axios';
 
 export default {
-  name: "EmpresaDetalleView",
+  name: "PersonaDetalleView",
 
   props: {
     id: {
@@ -41,7 +41,7 @@ export default {
 
   data() {
     return {
-      empresa: {
+      persona: {
         idcod: null,
         param1: "",
         param2: ""
@@ -50,29 +50,29 @@ export default {
   },
 
   methods: {
-    async fetchEmpresa() {
+    async fetchPersona() {
       try {
-        const response = await axios.get(`https://api.yumserver.com/15862/generic/empresa/${this.id}`);
-        this.empresa = response.data;
+        const response = await axios.get(`https://api.yumserver.com/15862/generic/personas/${this.id}`);
+        this.persona = response.data;
 
       } catch (error) {
-        console.error('Error al cargar la empresa:', error);
+        console.error('Error al cargar la persona:', error);
       }
     },
 
     volver() {
-      this.$router.push('/empresas');
+      this.$router.push('/personas');
     }
   },
 
   mounted() {
-    this.fetchEmpresa();
+    this.fetchPersona();
   },
 };
 </script>
 
 <style scoped>
-.empresa-detalle {
+.persona-detalle {
   max-width: 500px;
   margin: 0 auto;
   padding: 20px;
@@ -86,7 +86,7 @@ h2 {
   color: #333;
 }
 
-.empresa-info p {
+.persona-info p {
   margin: 10px 0;
   font-size: 16px;
   color: #555;
@@ -114,4 +114,3 @@ h2 {
   color: #888;
 }
 </style>
-

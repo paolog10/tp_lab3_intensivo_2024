@@ -158,8 +158,8 @@ export default {
 
   async mounted() {
     await this.fetchEmpresas();
-  }
-};
+  },
+  };
 </script>
 
 <style scoped>

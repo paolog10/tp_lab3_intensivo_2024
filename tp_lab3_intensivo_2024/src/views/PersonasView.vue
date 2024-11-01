@@ -29,6 +29,9 @@
                 <td>{{ persona.param1 }}</td>
                 <td>{{ persona.param2 }}</td>
                 <td>
+                  <router-link :to="{ name: 'PersonaDetalle', params: { id: persona.idcod }}">
+                    <button>Ver</button>
+                  </router-link>
                   <button @click="editPersona(persona)">Editar</button>
                   <button @click="confirmDelete(persona.idcod)">Eliminar</button>
                 </td>
