@@ -2,32 +2,39 @@
   <div id="app">
     <header>
       <h1>Administración de Empresas</h1>
-      
     </header>
 
     <main>
       <section>
-
         <h2>Empresas</h2>
-          <form @submit.prevent="editMode ? confirmEditEmpresa() : addEmpresa()">
-          <input 
-            v-model="empresa.param1" 
+        <form @submit.prevent="editMode ? confirmEditEmpresa() : addEmpresa()">
+          <input
+            v-model="empresa.param1"
             placeholder="Nombre de la empresa"
             required
           />
-          
-          <input 
-            v-model="empresa.param2" 
-            placeholder="Categoría de la empresa" 
-            required 
+
+          <input
+            v-model="empresa.param2"
+            placeholder="Categoría de la empresa"
+            required
           />
-          
-          <button 
-            type="submit"
-          >
+
+          <button type="submit">
             {{ editMode ? "Guardar Cambios" : "Agregar Empresa" }}
           </button>
-        </form><br>
+        </form>
+        <br />
+
+        <div>
+          <label>Filtro</label>
+          <input
+            v-model="buscar"
+            placeholder="Categoría de la empresa"
+            required
+          />
+        </div>
+        <br />
 
         <p v-if="empresas.length === 0">No hay empresas cargadas.</p>
 
@@ -40,15 +47,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(emp) in empresas" :key="emp.idcod">
+            <tr v-for="emp in empresasFiltradas" :key="emp.idcod">
               <td>{{ emp.param1 }}</td>
               <td>{{ emp.param2 }}</td>
               <td>
-                <router-link :to="{ name: 'EmpresaDetalle', params: { id: emp.idcod }}">
+                <router-link
+                  :to="{ name: 'EmpresaDetalle', params: { id: emp.idcod } }"
+                >
                   <button>Ver</button>
                 </router-link>
                 <button @click="editEmpresa(emp)">Editar</button>
-                <button @click="confirmDeleteEmpresa(emp.idcod)">Eliminar</button>
+                <button @click="confirmDeleteEmpresa(emp.idcod)">
+                  Eliminar
+                </button>
               </td>
             </tr>
           </tbody>
@@ -63,7 +74,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
@@ -72,9 +83,10 @@ export default {
       empresa: {
         idcod: null,
         param1: "",
-        param2: ""
+        param2: "",
       },
       editMode: false,
+      buscar: "",
     };
   },
 
@@ -82,8 +94,10 @@ export default {
     //GET
     async fetchEmpresas() {
       try {
-        const response = await axios.get('https://api.yumserver.com/15862/generic/empresa')
-        this.empresas = [...response.data]
+        const response = await axios.get(
+          "https://api.yumserver.com/15862/generic/empresa"
+        );
+        this.empresas = [...response.data];
       } catch (error) {
         console.log(error);
       }
@@ -92,13 +106,16 @@ export default {
     //POST
     async addEmpresa() {
       try {
-        const nuevaEmpresa ={
+        const nuevaEmpresa = {
           param1: this.empresa.param1,
           param2: this.empresa.param2,
-        }
+        };
 
-        const response = await axios.post('https://api.yumserver.com/15862/generic/empresa', nuevaEmpresa);
-        
+        const response = await axios.post(
+          "https://api.yumserver.com/15862/generic/empresa",
+          nuevaEmpresa
+        );
+
         await this.fetchEmpresas();
       } catch (error) {
         console.log(error);
@@ -108,12 +125,15 @@ export default {
     //PATCH AXIOS
     editEmpresa(empresa) {
       this.editMode = true;
-      this.empresa = { ...empresa }; 
+      this.empresa = { ...empresa };
     },
     async confirmEditEmpresa() {
-      if (confirm('¿Estás seguro de editar esta empresa?')) {
+      if (confirm("¿Estás seguro de editar esta empresa?")) {
         try {
-          let response = await axios.patch('https://api.yumserver.com/15862/generic/empresa', this.empresa);
+          let response = await axios.patch(
+            "https://api.yumserver.com/15862/generic/empresa",
+            this.empresa
+          );
 
           // Llama a fetchEmpresas() para actualizar la lista completa desde el servidor
           await this.fetchEmpresas();
@@ -128,7 +148,7 @@ export default {
 
     //DELETE
     confirmDeleteEmpresa(id) {
-      if (confirm('¿Estás seguro de eliminar esta empresa?')) {
+      if (confirm("¿Estás seguro de eliminar esta empresa?")) {
         this.deleteEmpresa(id);
       }
     },
@@ -138,9 +158,12 @@ export default {
           idcod: _idcod,
         };
 
-        const response = await axios.delete('https://api.yumserver.com/15862/generic/empresa', {
-          data: idcodEmpresa //incorporar un data como cuerpo del delete
-        });
+        const response = await axios.delete(
+          "https://api.yumserver.com/15862/generic/empresa",
+          {
+            data: idcodEmpresa, //incorporar un data como cuerpo del delete
+          }
+        );
 
         await this.fetchEmpresas();
       } catch (error) {
@@ -150,16 +173,24 @@ export default {
 
     // Resetear el formulario
     resetForm() {
-      this.empresa = { idcod: null, nombre: '', categoria: '' };
+      this.empresa = { idcod: null, nombre: "", categoria: "" };
       this.editMode = false;
     },
-
   },
 
   async mounted() {
     await this.fetchEmpresas();
   },
-  };
+
+  computed: {
+    empresasFiltradas() {
+      if (this.buscar == "") return this.empresas;
+      return this.empresas.filter((emp) =>
+        emp.param1.toLowerCase().includes(this.buscar.toLowerCase())
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
